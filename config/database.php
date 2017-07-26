@@ -79,7 +79,7 @@ return [
         ],
             'mongodb' => [ 
             'driver' => 'mongodb', 
-            'host' => 'localhost', 
+            'host' => env('MONGO_DB_HOST', 'localhost'), 
             'port' => 27017,
             'database' => 'test', 
             'username' => '', 
