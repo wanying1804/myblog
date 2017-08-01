@@ -1,84 +1,85 @@
 <?php
 namespace App\Http\Controllers;
-use App\Http\Controllers\Controller;
-use App\Mongodb;
-use App\User;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Http\Request;
-use Auth;
+
+use App\Post;
+
 
 class PostController extends Controller
 {
-    public function createSomePosts()
+    //show post list
+    public function index()
     {
-         $posts = Mongodb::connectionMongodb('article');
-         //$posts->delete();
-         dd($posts->insert(['title' => 'every day is adfasgasfdadasf', 'content' => 'asdfasdf;jgweerwerdfad','publish_at' => date('Y-m-d H:i:s'), 'author_id' => 2]));
-
-
-     
-         $postsData = $posts->where('title', 'huangwei')->get()->toArray();
-         dd($postsData);
-
- 
+        $posts= Post::orderBy('created_at','desc')->paginate(6);
+        return view('post/index',compact('posts'));
     }
 
-    public function getContent($id)
+    //show post detail
+    public function show(Post $post)
     {
-        $postModel = Mongodb::connectionMongodb('article');
-        $post = $postModel->where('_id', $id)->first();
-        $post['author_name'] = User::where('id', $post['author_id'])->value('name');
-        return view('content', compact('post'));
+        return view('post/show',compact('post'));
     }
 
-    public function getPostsByAuthorId($authorId)
+    //add new post
+    public function create()
     {
-        $authorId = intval($authorId);
-        $postModel = Mongodb::connectionMongodb('article');
-        $postsData = $postModel->where('author_id', $authorId)->orderBy('publish_at', 'desc')->get()->toArray();
-        $authorIdArr = array_column($postsData, 'author_id');
-        $authorNameMap = User::whereIn('id', $authorIdArr)->pluck('name', 'id')->toArray();
-        $postsData = array_map(function($item) use($authorNameMap){
-            $item['author_name'] = $authorNameMap[$item['author_id']];
-            return $item;
-        }, $postsData);
-        $title = 'of ' . array_pop($authorNameMap);
-        return view('home', compact('postsData', 'title'));
+        return view('post/create');
     }
 
-    public function postDelete($id)
+    //save new post
+    public function store()
     {
-        $postModel = Mongodb::connectionMongodb('article');
-        $ret = $postModel->where('_id', $id)->delete();
-        if($ret){
-            return Redirect::route('home');
-        }
+        //validate
+        $this->validate(\request(),[
+            'title' => 'required|string|max:100|min:5',
+            'content' => 'required|string|min:10',
+        ]);
+
+        //logic
+        $user_id=\Auth::id();
+        $params=array_merge(\request(['title','content']),compact('user_id'));
+        $post = Post::create($params);
+
+        //show
+        return \redirect('/posts');
+
+        //dd($post);
+
     }
 
-    public function postEdit(Request $request, $id = '')
+    //edit single post
+    public function edit(Post $post)
     {
-        $postModel = Mongodb::connectionMongodb('article');
-        if($method = $request->isMethod('get')){
-            $post = $postModel->where('_id', $id)->first();
-            return view('create', compact('post'));
-        }
-        $data['title'] = $request['title'];
-        $data['content'] = $request['content'];
-        $postModel->where('_id', $request['_id'])->update($data);
-        return Redirect::route('home');
+        return view('post/edit',compact('post'));
     }
 
-    public function postCreate(Request $request)
+    //update single post
+    public function update(Post $post)
     {
-        if($method = $request->isMethod('get')){
-            return view('create');
-        }
-        $posts = Mongodb::connectionMongodb('article');
-        $data['title'] = $request['title'];
-        $data['content'] = $request['content'];
-        $data['publish_at'] = date('Y-m-d H:i:s');
-        $data['author_id'] = Auth::user()->id;
-        $posts->insert($data);
-        return Redirect::route('home');
+        //validate
+        $this->validate(\request(),[
+            'title' => 'required|string|max:100|min:5',
+            'content' => 'required|string|min:10',
+        ]);
+
+        $this->authorize('update',$post);
+
+        //logic
+        $post->title = \request('title');
+        $post->content = \request('content');
+        $post->save();
+
+        //show
+        return \redirect("/posts/{$post->id}");
     }
+
+    //delete single post
+    public function delete(Post $post)
+    {
+        $post->delete();
+
+        return \redirect('/posts');
+    }
+
+
+
 }
