@@ -1,11 +1,19 @@
 <?php
 
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
+use Jenssegers\Mongodb\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
 class CreatePostsTable extends Migration
 {
+
+    /**
+     * The name of the database connection to use.
+     *
+     * @var string
+     */
+    protected $connection = 'mongodb';
+
     /**
      * Run the migrations.
      *
@@ -13,11 +21,12 @@ class CreatePostsTable extends Migration
      */
     public function up()
     {
-        Schema::create('posts', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('title');
-            $table->text('content');
-            $table->timestamps();
+        Schema::connection('mongodb')->create('posts', function (Blueprint $collection) {
+            $collection->increments('id');
+            $collection->string('title',100)->default("");
+            $collection->text('content');
+            $collection->integer('user_id')->default(0);
+            $collection->timestamps();
         });
     }
 
@@ -28,6 +37,6 @@ class CreatePostsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('posts');
+        DB::connection('mongodb')->drop(['posts']);
     }
 }
