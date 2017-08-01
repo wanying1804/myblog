@@ -163,6 +163,8 @@ return [
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
 
+        Jenssegers\Mongodb\MongodbServiceProvider::class,
+
         /*
          * Package Service Providers...
          */
@@ -228,6 +230,7 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Mongo' => Jenssegers\Mongodb\MongodbServiceProvider::class,
+        'Moloquent' => Jenssegers\Mongodb\Eloquent\Model::class,
         
         'Form'=>Collective\Html\FormFacade::class,
         'Html'=>Collective\Html\HtmlFacade::class,

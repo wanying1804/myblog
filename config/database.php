@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('DB_CONNECTION', 'mysql'),
+    'default' => env('DB_CONNECTION', 'mongodb'),
 
     /*
     |--------------------------------------------------------------------------
@@ -78,7 +78,7 @@ return [
             'prefix' => '',
         ],
             'mongodb' => [ 
-            'driver' => 'mongodb', 
+            'driver' => 'mongodb',
             'host' => env('MONGO_DB_HOST', 'localhost'), 
             'port' => 27017,
             'database' => 'test', 
