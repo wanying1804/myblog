@@ -18,16 +18,37 @@ Route::get('/', function () {
 */
 Route::get('/', 'HomeController@index')->name('home');
 
-Auth::routes();
+//register page
+Route::get('/register','RegisterController@index');
+//register
+Route::post('/register','RegisterController@register');
+//login page
+Route::get('/login','LoginController@index');
+//login
+Route::post('/login','LoginController@login');
+//logout
+Route::post('/logout','LoginController@logout');
 
-Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/posts/list','PostController@index');
 
-Route::group(['prefix' => 'post'], function () {
-	Route::get('createSomePosts','PostController@createSomePosts');
-	Route::get('getContent/{id}','PostController@getContent')->name('getContent');
-	Route::get('getPostsByAuthorId/{id}','PostController@getPostsByAuthorId')->name('getPostsByAuthorId');
-	Route::get('postDelete/{id}','PostController@postDelete')->name('postDelete');
-	Route::any('postEdit/{id?}','PostController@postEdit')->name('postEdit');
-	Route::any('postCreate','PostController@postCreate')->name('postCreate');
+Route::group(['prefix' => 'posts'], function () {
+
+    Route::get('createSomePosts','PostController@createSomePosts');
+    //Post list page
+    Route::get('/','PostController@index');
+
+    //create post
+    Route::get('/create','PostController@create');
+    Route::post('/','PostController@store');
+
+    //post detail page
+    Route::get('/{post}','PostController@show');
+
+    //edit post
+    Route::get('/{post}/edit','PostController@edit');
+    Route::put('/{post}','PostController@update');
+
+    //delete post
+    Route::get('/{post}/delete','PostController@delete');
+
+
 });
